@@ -70,7 +70,6 @@ public class HotelDataTest {
 		Path expected = Paths.get( "output" + File.separator  + "expectedOutputLargeSet"); // instructor's output
 		Path actual = Paths.get(args[5]);
 		runTestAndCompare(args, actual, expected, testName);
-
 	}
 	
 	@Test(timeout = TestUtils.TIMEOUT)
@@ -82,7 +81,6 @@ public class HotelDataTest {
 		Path expected = Paths.get( "output" + File.separator  + "expectedOutputLargeSet"); // instructor's output
 		Path actual = Paths.get(args[5]);
 		runTestAndCompare(args, actual, expected, testName);
-
 	}
 	
 	/**

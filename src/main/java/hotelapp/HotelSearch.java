@@ -1,5 +1,8 @@
 package hotelapp;
 
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 /** The driver class for project 3.
  * The main function should take the following command line arguments:
  * -hotels hotelFile -reviews reviewsDirectory -threads numThreads -output filepath
@@ -16,9 +19,42 @@ package hotelapp;
  * (search does not need to be concurrent).
  */
 public class HotelSearch {
-    public static void main(String[] args) {
-       // FILL IN CODE
+    public static void main(String[] args) throws FileNotFoundException {
+        // get args and parse json
+        ArgParser.parseArg(args);
+        HotelData hotelData = new HotelData();
+        ReviewData reviewData = new ReviewData();
+        WordData wordData = new WordData();
 
+        JsonFileParser.getHotels(ArgParser.getPath("-hotel"), hotelData);
+        JsonFileParser.findAndParseJsonFiles(ArgParser.getPath("-review"), reviewData, wordData);
+
+        // run the searching interface
+        while (true) {
+            System.out.println("===========================================");
+            System.out.println("===== Welcome to Hotel Review Search! =====");
+            System.out.println("===========================================");
+            System.out.println("Please enter these following commands:");
+            System.out.println("find <hotelId> / findReviews <hotelId> / findWord <word> / q");
+            System.out.println("===========================================");
+            System.out.print("user input: ");
+
+            Scanner sc = new Scanner(System.in);
+            String inputString = sc.nextLine();
+
+            if (inputString.equals("q")) {
+                System.out.println("Bye");
+                break;
+            }
+
+            String[] inputs = inputString.split(" ");
+            switch (inputs[0]) {
+                case "find" -> hotelData.getHotel(inputs[1]);
+                case "findReviews" -> reviewData.printReviewByHID(inputs[1]);
+                case "findWord" -> wordData.getReview(inputs[1], reviewData);
+                default -> System.out.println("Invalid input. Please try again.");
+            }
+        }
     }
-
 }
+
