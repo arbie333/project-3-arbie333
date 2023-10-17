@@ -22,12 +22,13 @@ public class HotelSearch {
     public static void main(String[] args) throws FileNotFoundException {
         // get args and parse json
         ArgParser.parseArg(args);
-        HotelData hotelData = new HotelData();
-        ReviewData reviewData = new ReviewData();
+        ThreadSafeHotelData threadSafeHotelData = new ThreadSafeHotelData();
+        ThreadSafeReviewData threadSafeReviewData = new ThreadSafeReviewData();
         WordData wordData = new WordData();
 
-        JsonFileParser.getHotels(ArgParser.getPath("-hotel"), hotelData);
-        JsonFileParser.findAndParseJsonFiles(ArgParser.getPath("-review"), reviewData, wordData);
+        JsonFileParser jsonFileParser = new JsonFileParser(threadSafeHotelData, threadSafeReviewData, wordData);
+        jsonFileParser.getHotels(ArgParser.getPath("-hotel"));
+        jsonFileParser.findAndParseJsonFiles(ArgParser.getPath("-review"));
 
         // run the searching interface
         while (true) {
@@ -49,9 +50,9 @@ public class HotelSearch {
 
             String[] inputs = inputString.split(" ");
             switch (inputs[0]) {
-                case "find" -> hotelData.getHotel(inputs[1]);
-                case "findReviews" -> reviewData.printReviewByHID(inputs[1]);
-                case "findWord" -> wordData.getReview(inputs[1], reviewData);
+                case "find" -> threadSafeHotelData.getHotel(inputs[1]);
+                case "findReviews" -> threadSafeReviewData.printReviewByHID(inputs[1]);
+                case "findWord" -> wordData.getReview(inputs[1], threadSafeReviewData);
                 default -> System.out.println("Invalid input. Please try again.");
             }
         }

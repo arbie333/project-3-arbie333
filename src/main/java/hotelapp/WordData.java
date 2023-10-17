@@ -43,7 +43,7 @@ public class WordData {
         }
     }
 
-    public void getReview(String word, ReviewData reviews) {
+    public void getReview(String word, ThreadSafeReviewData reviews) {
         if (isStopWord(word)) {
             System.out.println("Please don't search junky words.");
         }

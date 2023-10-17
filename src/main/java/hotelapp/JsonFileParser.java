@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,9 +16,47 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
 
 public class JsonFileParser {
-    private static void getReviews(String filename, ReviewData reviewCol, WordData wordCol) {
+    private ExecutorService poolManager = Executors.newCachedThreadPool();
+    private Logger logger = LogManager.getLogger();
+    private Phaser phaser = new Phaser();
+    private ThreadSafeHotelData hotelData;
+    private ThreadSafeReviewData reviewData;
+    private WordData wordData;
+
+    public JsonFileParser(ThreadSafeHotelData hotelData, ThreadSafeReviewData reviewData, WordData wordData) {
+        this.hotelData = hotelData;
+        this.reviewData = reviewData;
+        this.wordData = wordData;
+    }
+
+    public class ParseWorker implements Runnable {
+        private Path dir;
+
+        public ParseWorker(Path dir) {
+            this.dir = dir;
+        }
+
+        @Override
+        public void run() {
+            ParseWorker worker = new ParseWorker(dir);
+            poolManager.submit(worker);
+            phaser.register();
+            logger.debug("Created a worker for " + dir.toString());
+
+            getReviews(dir.toString());
+
+            phaser.arriveAndDeregister();
+            logger.debug("Worker working on " + dir.toString() + " finished work");
+        }
+    }
+
+    private void getReviews(String filename) {
         ArrayList<Review> reviews;
         Gson gson = new Gson();
 
@@ -33,14 +73,14 @@ public class JsonFileParser {
             reviews = gson.fromJson(review, reviewType);
 
             // build maps
-            reviewCol.build(reviews);
-            wordCol.addReviews(reviews);
+            reviewData.build(reviews);
+            wordData.addReviews(reviews);
         } catch (IOException e) {
             System.out.println(e);
         }
     }
 
-    public static void getHotels(String filename, HotelData hotelData) {
+    public void getHotels(String filename) {
         ArrayList<Hotel> hotels;
         Gson gson = new Gson();
 
@@ -58,16 +98,29 @@ public class JsonFileParser {
         }
     }
 
-    public static void findAndParseJsonFiles(String directory, ReviewData reviewCol, WordData wordCol) {
+    public void findAndParseJsonFiles(String directory) {
         // FILL IN CODE
         Path p = Paths.get(directory);
+
         try (DirectoryStream<Path> pathsInDir = Files.newDirectoryStream(p)) {
             for (Path path : pathsInDir) {
                 String pathStr = path.toString();
                 if (Files.isDirectory(path)) {
-                    findAndParseJsonFiles(pathStr, reviewCol, wordCol);
+                    findAndParseJsonFiles(pathStr);
                 } else if (pathStr.endsWith(".json")) {
-                    getReviews(pathStr, reviewCol, wordCol);
+                    ParseWorker firstWorker = new ParseWorker(path);
+                    poolManager.submit(firstWorker);
+                    phaser.register();
+                    logger.debug("Created a worker for " + pathStr);
+
+                    phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
+
+                    poolManager.shutdown();
+                    try {
+                        poolManager.awaitTermination(1, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        System.out.println(e);
+                    }
                 }
             }
         } catch (IOException e) {
