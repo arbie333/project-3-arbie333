@@ -34,7 +34,6 @@ public class HotelDataTest {
 		runTestAndCompare(args, actual, expected, testName);
 	}
 
-
 	@Test(timeout = TestUtils.TIMEOUT1)
 	public void testThreeReviewsSameHotel() {
 		// reading one hotel from hotels1.json.
@@ -124,7 +123,4 @@ public class HotelDataTest {
 			Assert.fail(String.format("%n" + "Test Case: %s%n" + " Mismatched Line: %d%n", testName, -count));
 		}
 	}
-	
-	
-
 }

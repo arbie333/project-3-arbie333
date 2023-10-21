@@ -11,7 +11,7 @@ public final class Review implements Comparable<hotelapp.Review> {
     private double ratingOverall;
     private String title;
     private String reviewText;
-    private String userNickname;
+    private String userNickname = "Anonymous";
 
     @SerializedName(value = "reviewSubmissionTime")
     private String date;
@@ -58,15 +58,11 @@ public final class Review implements Comparable<hotelapp.Review> {
 
     @Override
     public String toString() {
-        String re = "hotelId = " + hotelId + "\t\n" +
-                "reviewId = " + reviewId + "\t\n" +
-                "averageRating = " + ratingOverall + "\t\n" +
-                "title = " + title + "\t\n" +
-                "reviewText = " + reviewText + "\t\n" +
-                "userNickname = " + userNickname + "\t\n" +
-                "submissionDate = " + date;
-
-        return re;
+        return "Review by " + userNickname + " on " + date + System.lineSeparator() +
+                "Rating: " + ratingOverall + System.lineSeparator() +
+                "ReviewId: " + reviewId + System.lineSeparator() +
+                title + System.lineSeparator() +
+                reviewText + System.lineSeparator();
     }
 
     @Override

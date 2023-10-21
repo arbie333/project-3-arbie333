@@ -20,7 +20,7 @@ public class ArgParser {
         }
     }
 
-    public static String getPath(String key) {
+    public static String getValue(String key) {
         return argMap.get(key);
     }
 }

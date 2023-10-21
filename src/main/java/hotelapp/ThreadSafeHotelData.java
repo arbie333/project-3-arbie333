@@ -1,6 +1,10 @@
 package hotelapp;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -37,5 +41,9 @@ public class ThreadSafeHotelData {
         finally {
             lock.readLock().unlock();
         }
+    }
+
+    public Map<String, Hotel> getHotels() {
+        return Collections.unmodifiableMap(map);
     }
 }

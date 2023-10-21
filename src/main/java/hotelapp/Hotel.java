@@ -22,9 +22,7 @@ public final class Hotel {
     @SerializedName(value = "c")
     private String country;
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
     public String getId() {
         return String.valueOf(id);
@@ -35,18 +33,11 @@ public final class Hotel {
     }
 
     public String getAddress() {
-        return address + ", " + city + ", " + state + ", " + country;
+        return address + System.lineSeparator() + city + ", " + state;
     }
 
     @Override
     public String toString() {
-        String re = "";
-        re += "hotelName = " + name + System.lineSeparator();
-        re += "hotelId = " + id + System.lineSeparator();
-        re += "latitude = " + coordinates.getLat() + System.lineSeparator();
-        re += "longitude = " + coordinates.getLng() + System.lineSeparator();
-        re += "address = " + getAddress();
-
-        return re;
+        return getName() + ": " + id + System.lineSeparator() + getAddress();
     }
 }

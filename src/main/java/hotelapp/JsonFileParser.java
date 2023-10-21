@@ -22,21 +22,31 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 
 public class JsonFileParser {
-    private ExecutorService poolManager = Executors.newCachedThreadPool();
-    private Logger logger = LogManager.getLogger();
-    private Phaser phaser = new Phaser();
-    private ThreadSafeHotelData hotelData;
-    private ThreadSafeReviewData reviewData;
-    private WordData wordData;
+    private final ExecutorService poolManager;
+    private final Logger logger = LogManager.getLogger();
+    private final Phaser phaser = new Phaser();
+    private final ThreadSafeHotelData hotelData;
+    private final ThreadSafeReviewData reviewData;
+    private final WordData wordData;
+    private String pathHotel = "";
+    private String pathReview = "";
 
-    public JsonFileParser(ThreadSafeHotelData hotelData, ThreadSafeReviewData reviewData, WordData wordData) {
+    public JsonFileParser(ThreadSafeHotelData hotelData, ThreadSafeReviewData reviewData, WordData wordData, String nThreadsStr, String pathHotel, String pathReview) {
+        int nThreads = 3;
+        if (nThreadsStr != null) {
+            nThreads = Integer.parseInt(nThreadsStr);
+        }
+
         this.hotelData = hotelData;
         this.reviewData = reviewData;
         this.wordData = wordData;
+        this.poolManager = Executors.newFixedThreadPool(nThreads);
+        this.pathHotel = pathHotel;
+        this.pathReview = pathReview;
     }
 
-    public class ParseWorker implements Runnable {
-        private Path dir;
+    private class ParseWorker implements Runnable {
+        private final Path dir;
 
         public ParseWorker(Path dir) {
             this.dir = dir;
@@ -44,11 +54,6 @@ public class JsonFileParser {
 
         @Override
         public void run() {
-            ParseWorker worker = new ParseWorker(dir);
-            poolManager.submit(worker);
-            phaser.register();
-            logger.debug("Created a worker for " + dir.toString());
-
             getReviews(dir.toString());
 
             phaser.arriveAndDeregister();
@@ -80,7 +85,7 @@ public class JsonFileParser {
         }
     }
 
-    public void getHotels(String filename) {
+    private void getHotels(String filename) {
         ArrayList<Hotel> hotels;
         Gson gson = new Gson();
 
@@ -98,7 +103,7 @@ public class JsonFileParser {
         }
     }
 
-    public void findAndParseJsonFiles(String directory) {
+    private void findAndParseJsonFiles(String directory) {
         // FILL IN CODE
         Path p = Paths.get(directory);
 
@@ -112,19 +117,28 @@ public class JsonFileParser {
                     poolManager.submit(firstWorker);
                     phaser.register();
                     logger.debug("Created a worker for " + pathStr);
-
-                    phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
-
-                    poolManager.shutdown();
-                    try {
-                        poolManager.awaitTermination(1, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        System.out.println(e);
-                    }
                 }
+            }
+
+            phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
+
+            poolManager.shutdown();
+            try {
+                poolManager.awaitTermination(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                System.out.println(e);
             }
         } catch (IOException e) {
             System.out.println("Can not open directory: " + directory);
+        }
+    }
+
+    public void parse() {
+        if (pathHotel != null) {
+            getHotels(pathHotel);
+        }
+        if (pathReview != null) {
+            findAndParseJsonFiles(pathReview);
         }
     }
 }

@@ -57,7 +57,7 @@ public class WordData {
 
         for (Map.Entry<Integer, HashSet<String>> freq : freqMap.entrySet()) {
             for (String Rid : freq.getValue()) {
-                reviews.printReviewByRID(Rid);
+                reviews.getReviewByRID(Rid);
                 System.out.println(freq.getKey());
                 System.out.println("************************");
             }

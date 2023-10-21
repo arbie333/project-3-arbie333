@@ -19,16 +19,25 @@ import java.util.Scanner;
  * (search does not need to be concurrent).
  */
 public class HotelSearch {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         // get args and parse json
         ArgParser.parseArg(args);
         ThreadSafeHotelData threadSafeHotelData = new ThreadSafeHotelData();
         ThreadSafeReviewData threadSafeReviewData = new ThreadSafeReviewData();
         WordData wordData = new WordData();
 
-        JsonFileParser jsonFileParser = new JsonFileParser(threadSafeHotelData, threadSafeReviewData, wordData);
-        jsonFileParser.getHotels(ArgParser.getPath("-hotel"));
-        jsonFileParser.findAndParseJsonFiles(ArgParser.getPath("-review"));
+        String nThreads = ArgParser.getValue("-thread");
+        String pathHotel = ArgParser.getValue("-hotels");
+        String pathReview = ArgParser.getValue("-reviews");
+
+        JsonFileParser jsonFileParser = new JsonFileParser(threadSafeHotelData, threadSafeReviewData, wordData, nThreads, pathHotel, pathReview);
+        jsonFileParser.parse();
+
+        if (ArgParser.getValue("-output") != null) {
+            OutputWriter ow = new OutputWriter(threadSafeHotelData, threadSafeReviewData);
+            ow.writeToFile(ArgParser.getValue("-output"));
+            return;
+        }
 
         // run the searching interface
         while (true) {
@@ -51,7 +60,11 @@ public class HotelSearch {
             String[] inputs = inputString.split(" ");
             switch (inputs[0]) {
                 case "find" -> threadSafeHotelData.getHotel(inputs[1]);
-                case "findReviews" -> threadSafeReviewData.printReviewByHID(inputs[1]);
+                case "findReviews" -> {
+                    for (Review review : threadSafeReviewData.getReviewByHID(inputs[1])) {
+                        System.out.println(review);
+                    }
+                }
                 case "findWord" -> wordData.getReview(inputs[1], threadSafeReviewData);
                 default -> System.out.println("Invalid input. Please try again.");
             }

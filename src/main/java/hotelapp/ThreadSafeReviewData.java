@@ -1,9 +1,6 @@
 package hotelapp;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ThreadSafeReviewData {
@@ -32,41 +29,36 @@ public class ThreadSafeReviewData {
         }
     }
 
-    public void printReviewByHID(String targetId) {
+    public Set<Review> getReviewByHID(String targetId) {
         try {
             lock.readLock().lock();
             TreeSet<Review> reviews = reviewsByHID.get(targetId);
 
             if (reviews == null) {
                 System.out.println("Hotel not found, please try again.");
-                return;
+                return null;
             }
 
             // display the result
-            for (Review review : reviews) {
-                System.out.println(review);
-                System.out.println("************************");
-            }
+            return Collections.unmodifiableSet(reviews);
         }
         finally {
             lock.readLock().unlock();
         }
     }
 
-    public void printReviewByRID(String targetId) {
+    public Set<Review> getReviewByRID(String targetId) {
         try {
             lock.readLock().lock();
             TreeSet<Review> reviews = reviewsByRID.get(targetId);
 
             if (reviews == null) {
                 System.out.println("Reviews not found, please try again.");
-                return;
+                return null;
             }
 
             // display the result
-            for (Review review : reviews) {
-                System.out.println(review);
-            }
+            return Collections.unmodifiableSet(reviews);
         }
             finally {
             lock.readLock().unlock();
