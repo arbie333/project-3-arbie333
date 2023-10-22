@@ -3,14 +3,11 @@ package hotelapp;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ThreadSafeHotelData {
-    private Map<String, Hotel> map = new HashMap<>();
+    private final Map<String, Hotel> map = new TreeMap<>();
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public void addHotels(ArrayList<Hotel> hotels) {

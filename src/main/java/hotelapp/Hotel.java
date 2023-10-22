@@ -38,6 +38,7 @@ public final class Hotel {
 
     @Override
     public String toString() {
-        return getName() + ": " + id + System.lineSeparator() + getAddress();
+        return System.lineSeparator() + "********************" + System.lineSeparator()
+                + getName() + ": " + id + System.lineSeparator() + getAddress() + System.lineSeparator();
     }
 }

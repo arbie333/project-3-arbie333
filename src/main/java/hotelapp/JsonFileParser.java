@@ -81,7 +81,7 @@ public class JsonFileParser {
             reviewData.build(reviews);
             wordData.addReviews(reviews);
         } catch (IOException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -99,7 +99,7 @@ public class JsonFileParser {
             hotelData.addHotels(hotels);
         } catch (IOException e)
         {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -119,15 +119,6 @@ public class JsonFileParser {
                     logger.debug("Created a worker for " + pathStr);
                 }
             }
-
-            phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
-
-            poolManager.shutdown();
-            try {
-                poolManager.awaitTermination(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                System.out.println(e);
-            }
         } catch (IOException e) {
             System.out.println("Can not open directory: " + directory);
         }
@@ -139,6 +130,13 @@ public class JsonFileParser {
         }
         if (pathReview != null) {
             findAndParseJsonFiles(pathReview);
+            phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
+            poolManager.shutdown();
+            try {
+                poolManager.awaitTermination(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }

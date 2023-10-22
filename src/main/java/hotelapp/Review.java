@@ -6,17 +6,17 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public final class Review implements Comparable<hotelapp.Review> {
-    private String hotelId;
-    private String reviewId;
-    private double ratingOverall;
-    private String title;
-    private String reviewText;
-    private String userNickname = "Anonymous";
+    private final String hotelId;
+    private final String reviewId;
+    private final int ratingOverall;
+    private final String title;
+    private final String reviewText;
+    private String userNickname;
 
     @SerializedName(value = "reviewSubmissionTime")
-    private String date;
+    private final String date;
 
-    public Review(String hotelId, String reviewId, double ratingOverall, String title, String reviewText,
+    public Review(String hotelId, String reviewId, int ratingOverall, String title, String reviewText,
                   String userNickname, String date) {
         this.hotelId = hotelId;
         this.reviewId = reviewId;
@@ -35,7 +35,7 @@ public final class Review implements Comparable<hotelapp.Review> {
         return reviewId;
     }
 
-    public double getRatingOverall() {
+    public int getRatingOverall() {
         return ratingOverall;
     }
 
@@ -48,6 +48,9 @@ public final class Review implements Comparable<hotelapp.Review> {
     }
 
     public String getUserNickname() {
+        if (userNickname.length() == 0) {
+            this.userNickname = "Anonymous";
+        }
         return userNickname;
     }
 
@@ -58,7 +61,7 @@ public final class Review implements Comparable<hotelapp.Review> {
 
     @Override
     public String toString() {
-        return "Review by " + userNickname + " on " + date + System.lineSeparator() +
+        return "Review by " + getUserNickname() + " on " + getDate() + System.lineSeparator() +
                 "Rating: " + ratingOverall + System.lineSeparator() +
                 "ReviewId: " + reviewId + System.lineSeparator() +
                 title + System.lineSeparator() +
