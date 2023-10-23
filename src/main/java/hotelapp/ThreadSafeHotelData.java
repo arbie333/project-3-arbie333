@@ -22,25 +22,24 @@ public class ThreadSafeHotelData {
         }
     }
 
-    public void getHotel(String targetId) {
+    public Hotel getHotel(String targetId) {
         try {
             lock.readLock().lock();
-            System.out.println("Find Hotel");
-            Hotel hotel = map.get(targetId);
+//            System.out.println("Find Hotel");
+//            Hotel hotel = ;
 
-            if (hotel == null) {
-                System.out.println("Hotel not found, please try again.");
-                return;
-            }
-
-            System.out.println(hotel);
+//            if (hotel == null) {
+//                System.out.println("Hotel not found, please try again.");
+//                return null;
+//            }
+            return map.get(targetId);
         }
         finally {
             lock.readLock().unlock();
         }
     }
 
-    public Map<String, Hotel> getHotels() {
-        return Collections.unmodifiableMap(map);
+    public Set<String> getHotelIds() {
+        return Collections.unmodifiableSet(map.keySet());
     }
 }

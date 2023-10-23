@@ -35,7 +35,7 @@ public class ThreadSafeReviewData {
             TreeSet<Review> reviews = reviewsByHID.get(targetId);
 
             if (reviews == null) {
-                System.out.println("Hotel not found, please try again.");
+//                System.out.println("Hotel not found, please try again.");
                 return null;
             }
 
@@ -53,14 +53,14 @@ public class ThreadSafeReviewData {
             TreeSet<Review> reviews = reviewsByRID.get(targetId);
 
             if (reviews == null) {
-                System.out.println("Reviews not found, please try again.");
+//                System.out.println("Reviews not found, please try again.");
                 return null;
             }
 
             // display the result
             return Collections.unmodifiableSet(reviews);
         }
-            finally {
+        finally {
             lock.readLock().unlock();
         }
     }

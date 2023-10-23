@@ -27,13 +27,14 @@ public class JsonFileParser {
     private final Phaser phaser = new Phaser();
     private final ThreadSafeHotelData hotelData;
     private final ThreadSafeReviewData reviewData;
-    private final WordData wordData;
-    private String pathHotel = "";
-    private String pathReview = "";
+    private final ThreadSafeWordData wordData;
+    private final String pathHotel;
+    private final String pathReview;
 
-    public JsonFileParser(ThreadSafeHotelData hotelData, ThreadSafeReviewData reviewData, WordData wordData, String nThreadsStr, String pathHotel, String pathReview) {
+    public JsonFileParser(ThreadSafeHotelData hotelData, ThreadSafeReviewData reviewData, ThreadSafeWordData wordData,
+                          String nThreadsStr, String pathHotel, String pathReview) {
         int nThreads = 3;
-        if (nThreadsStr != null) {
+        if (!nThreadsStr.isEmpty()) {
             nThreads = Integer.parseInt(nThreadsStr);
         }
 
@@ -62,7 +63,6 @@ public class JsonFileParser {
     }
 
     private void getReviews(String filename) {
-        ArrayList<Review> reviews;
         Gson gson = new Gson();
 
         // FILL IN CODE
@@ -75,7 +75,7 @@ public class JsonFileParser {
 
             // get array of reviews
             Type reviewType = new TypeToken<ArrayList<Review>>(){}.getType();
-            reviews = gson.fromJson(review, reviewType);
+            ArrayList<Review> reviews = gson.fromJson(review, reviewType);
 
             // build maps
             reviewData.build(reviews);
@@ -125,10 +125,10 @@ public class JsonFileParser {
     }
 
     public void parse() {
-        if (pathHotel != null) {
+        if (!pathHotel.isEmpty()) {
             getHotels(pathHotel);
         }
-        if (pathReview != null) {
+        if (!pathReview.isEmpty()) {
             findAndParseJsonFiles(pathReview);
             phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
             poolManager.shutdown();

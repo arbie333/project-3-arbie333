@@ -1,7 +1,7 @@
 package hotelapp;
 
 import java.io.*;
-import java.util.Map;
+import java.util.Set;
 
 public class OutputWriter {
     private final ThreadSafeHotelData hotelData;
@@ -14,16 +14,15 @@ public class OutputWriter {
 
     public void writeToFile(String path) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
-            for (Map.Entry<String, Hotel> entry : hotelData.getHotels().entrySet()) {
-                bw.write(entry.getValue().toString());
+            for (String id : hotelData.getHotelIds()) {
+                bw.write(hotelData.getHotel(id).toString());
 
-                if (reviewData.getReviewByHID(entry.getKey()) == null) {
+                Set<Review> reviews = reviewData.getReviewByHID(id);
+                if (reviews == null) {
                     continue;
                 }
 
-                for (Review review : reviewData.getReviewByHID(entry.getKey())) {
-                    bw.write("--------------------");
-                    bw.write(System.lineSeparator());
+                for (Review review : reviews) {
                     bw.write(review.toString());
                 }
             }

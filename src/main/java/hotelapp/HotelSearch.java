@@ -1,6 +1,5 @@
 package hotelapp;
 
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /** The driver class for project 3.
@@ -24,7 +23,7 @@ public class HotelSearch {
         ArgParser.parseArg(args);
         ThreadSafeHotelData threadSafeHotelData = new ThreadSafeHotelData();
         ThreadSafeReviewData threadSafeReviewData = new ThreadSafeReviewData();
-        WordData wordData = new WordData();
+        ThreadSafeWordData wordData = new ThreadSafeWordData();
 
         String nThreads = ArgParser.getValue("-thread");
         String pathHotel = ArgParser.getValue("-hotels");
@@ -41,13 +40,7 @@ public class HotelSearch {
 
         // run the searching interface
         while (true) {
-            System.out.println("===========================================");
-            System.out.println("===== Welcome to Hotel Review Search! =====");
-            System.out.println("===========================================");
-            System.out.println("Please enter these following commands:");
-            System.out.println("find <hotelId> / findReviews <hotelId> / findWord <word> / q");
-            System.out.println("===========================================");
-            System.out.print("user input: ");
+            UserInterfaceContent.printMessage();
 
             Scanner sc = new Scanner(System.in);
             String inputString = sc.nextLine();

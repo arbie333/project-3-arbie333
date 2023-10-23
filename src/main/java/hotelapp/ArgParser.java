@@ -21,6 +21,6 @@ public class ArgParser {
     }
 
     public static String getValue(String key) {
-        return argMap.get(key);
+        return argMap.getOrDefault(key, "");
     }
 }

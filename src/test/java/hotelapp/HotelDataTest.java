@@ -16,10 +16,8 @@ import java.nio.file.Paths;
  *
  */
 public class HotelDataTest {
-
 	private static final int RUNS = 10;
 	private static final int THREADS = 3;
-
 
 	@Test(timeout = TestUtils.TIMEOUT1)
 	public void testOneHotel() {

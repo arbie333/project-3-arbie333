@@ -61,7 +61,8 @@ public final class Review implements Comparable<hotelapp.Review> {
 
     @Override
     public String toString() {
-        return "Review by " + getUserNickname() + " on " + getDate() + System.lineSeparator() +
+        return "--------------------" + System.lineSeparator() +
+                "Review by " + getUserNickname() + " on " + getDate() + System.lineSeparator() +
                 "Rating: " + ratingOverall + System.lineSeparator() +
                 "ReviewId: " + reviewId + System.lineSeparator() +
                 title + System.lineSeparator() +
