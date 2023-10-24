@@ -5,10 +5,19 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The ThreadSafeWordData class represents a thread-safe data structure for storing and searching words in reviews.
+ */
 public class ThreadSafeWordData {
-    Map<String, TreeMap<Integer, HashSet<String>>> map = new HashMap<>();
+    Map<String, TreeMap<Integer, TreeSet<String>>> map = new HashMap<>();
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+    /**
+     * Checks if a word is a stop word or contains numbers.
+     *
+     * @param word The word to be checked.
+     * @return True if the word is a stop word or contains numbers; false otherwise.
+     */
     private static boolean isStopWord(String word) {
         Set<String> junkWord = Set.of("a", "the", "is", "are", "were", "and");
         if (junkWord.contains(word)) {
@@ -20,6 +29,11 @@ public class ThreadSafeWordData {
         }
     }
 
+    /**
+     * Adds reviews to the word data, indexing words by frequency and review ID.
+     *
+     * @param reviews The list of reviews to be added to the word data.
+     */
     public void addReviews (ArrayList<Review> reviews) {
         try {
             lock.writeLock().lock();
@@ -37,10 +51,10 @@ public class ThreadSafeWordData {
                 // inner map: key -> frequency, value -> list or review id
                 for (String word : review.getReviewText().split(" ")) {
                     if (!isStopWord(word)) {
-                        map.putIfAbsent(word, new TreeMap<Integer, HashSet<String>>(Comparator.reverseOrder()));
-                        TreeMap<Integer, HashSet<String>> innerMap = map.get(word);
+                        map.putIfAbsent(word, new TreeMap<>(Comparator.reverseOrder()));
+                        TreeMap<Integer, TreeSet<String>> innerMap = map.get(word);
                         int freq = wordCount.get(word);
-                        innerMap.putIfAbsent(freq, new HashSet<>());
+                        innerMap.putIfAbsent(freq, new TreeSet<>());
                         innerMap.get(freq).add(review.getReviewId());
                     }
                 }
@@ -51,27 +65,33 @@ public class ThreadSafeWordData {
         }
     }
 
-
-    public void getReview(String word, ThreadSafeReviewData reviews) {
+    /**
+     * Searches for reviews that contain the given word and displays their information.
+     *
+     * @param word    The word to search for in reviews.
+     * @param reviews The data source for reviews.
+     */
+    public void printReviews(String word, ThreadSafeReviewData reviews) {
         try {
             lock.readLock().lock();
             if (isStopWord(word)) {
-                System.out.println("Please don't search junky words.");
+                System.out.println("Please don't search stop words.");
             }
 
-            TreeMap<Integer, HashSet<String>> freqMap = map.get(word);
+            TreeMap<Integer, TreeSet<String>> freqMap = map.get(word);
 
             if (freqMap == null) {
                 System.out.println("Word not found, please try again.");
                 return;
             }
 
-            for (Map.Entry<Integer, HashSet<String>> freq : freqMap.entrySet()) {
+            for (Map.Entry<Integer, TreeSet<String>> freq : freqMap.entrySet()) {
                 for (String Rid : freq.getValue()) {
                     Set<Review> reviewsSet = reviews.getReviewByRID(Rid);
-                    System.out.println(reviewsSet);
-                    System.out.println(freq);
-                    System.out.println("************************");
+                    for (Review review : reviewsSet) {
+                        System.out.println(review);
+                    }
+                    System.out.println("Frequency = " + freq.getKey());
                 }
             }
         }

@@ -1,5 +1,8 @@
 package hotelapp;
 
+/**
+ * The Coordinates class represents geographical coordinates with latitude and longitude.
+ */
 public class Coordinates {
     private Double lat;
     private Double lng;

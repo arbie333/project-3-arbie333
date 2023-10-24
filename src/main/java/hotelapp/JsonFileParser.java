@@ -21,6 +21,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The JsonFileParser class is responsible for parsing JSON files that contain hotel and review data.
+ */
 public class JsonFileParser {
     private final ExecutorService poolManager;
     private final Logger logger = LogManager.getLogger();
@@ -31,6 +34,16 @@ public class JsonFileParser {
     private final String pathHotel;
     private final String pathReview;
 
+    /**
+     * Creates a JsonFileParser instance with the specified parameters.
+     *
+     * @param hotelData The hotel data storage.
+     * @param reviewData The review data storage.
+     * @param wordData The word data storage.
+     * @param nThreadsStr The number of threads to use for parsing.
+     * @param pathHotel The path to the hotel JSON file.
+     * @param pathReview The path to the directory containing review JSON files.
+     */
     public JsonFileParser(ThreadSafeHotelData hotelData, ThreadSafeReviewData reviewData, ThreadSafeWordData wordData,
                           String nThreadsStr, String pathHotel, String pathReview) {
         int nThreads = 3;
@@ -46,6 +59,9 @@ public class JsonFileParser {
         this.pathReview = pathReview;
     }
 
+    /**
+     * A worker class responsible for parsing JSON files in a specific directory.
+     */
     private class ParseWorker implements Runnable {
         private final Path dir;
 
@@ -55,14 +71,19 @@ public class JsonFileParser {
 
         @Override
         public void run() {
-            getReviews(dir.toString());
+            parseReviews(dir.toString());
 
             phaser.arriveAndDeregister();
-            logger.debug("Worker working on " + dir.toString() + " finished work");
+            logger.debug("Worker working on " + dir + " finished work");
         }
     }
 
-    private void getReviews(String filename) {
+    /**
+     * Parses a JSON file containing review data.
+     *
+     * @param filename The path to the JSON file to be parsed.
+     */
+    private void parseReviews(String filename) {
         Gson gson = new Gson();
 
         // FILL IN CODE
@@ -85,6 +106,11 @@ public class JsonFileParser {
         }
     }
 
+    /**
+     * Parses a JSON file containing hotel data.
+     *
+     * @param filename The path to the JSON file to be parsed.
+     */
     private void getHotels(String filename) {
         ArrayList<Hotel> hotels;
         Gson gson = new Gson();
@@ -103,6 +129,11 @@ public class JsonFileParser {
         }
     }
 
+    /**
+     * Recursively searches for and parses JSON files in a specified directory.
+     *
+     * @param directory The path of the directory to search for JSON files.
+     */
     private void findAndParseJsonFiles(String directory) {
         // FILL IN CODE
         Path p = Paths.get(directory);
@@ -124,13 +155,16 @@ public class JsonFileParser {
         }
     }
 
+    /**
+     * Initiates the parsing process, including parsing hotel data and JSON files containing reviews.
+     */
     public void parse() {
         if (!pathHotel.isEmpty()) {
             getHotels(pathHotel);
         }
         if (!pathReview.isEmpty()) {
             findAndParseJsonFiles(pathReview);
-            phaser.awaitAdvance(phaser.getPhase()); // getPhase -> 到了沒
+            phaser.awaitAdvance(phaser.getPhase());
             poolManager.shutdown();
             try {
                 poolManager.awaitTermination(1, TimeUnit.SECONDS);

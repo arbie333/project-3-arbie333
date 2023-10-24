@@ -1,6 +1,7 @@
 package hotelapp;
 
 import java.util.Scanner;
+import java.util.Set;
 
 /** The driver class for project 3.
  * The main function should take the following command line arguments:
@@ -32,7 +33,7 @@ public class HotelSearch {
         JsonFileParser jsonFileParser = new JsonFileParser(threadSafeHotelData, threadSafeReviewData, wordData, nThreads, pathHotel, pathReview);
         jsonFileParser.parse();
 
-        if (ArgParser.getValue("-output") != null) {
+        if (!ArgParser.getValue("-output").isEmpty()) {
             OutputWriter ow = new OutputWriter(threadSafeHotelData, threadSafeReviewData);
             ow.writeToFile(ArgParser.getValue("-output"));
             return;
@@ -46,19 +47,37 @@ public class HotelSearch {
             String inputString = sc.nextLine();
 
             if (inputString.equals("q")) {
-                System.out.println("Bye");
+                UserInterfaceContent.printBye();
                 break;
             }
 
             String[] inputs = inputString.split(" ");
+
+            if (inputs.length == 1) {
+                System.out.println("Invalid input, please try again.");
+                continue;
+            }
+
             switch (inputs[0]) {
-                case "find" -> threadSafeHotelData.getHotel(inputs[1]);
+                case "find" -> {
+                    Hotel hotel = threadSafeHotelData.getHotel(inputs[1]);
+                    if (hotel == null) {
+                        System.out.println("Hotel not found");
+                        continue;
+                    }
+                    System.out.println(hotel);
+                }
                 case "findReviews" -> {
+                    Set<Review> reviewSet = threadSafeReviewData.getReviewByHID(inputs[1]);
+                    if (reviewSet == null) {
+                        System.out.println("Reviews not found");
+                        continue;
+                    }
                     for (Review review : threadSafeReviewData.getReviewByHID(inputs[1])) {
                         System.out.println(review);
                     }
                 }
-                case "findWord" -> wordData.getReview(inputs[1], threadSafeReviewData);
+                case "findWord" -> wordData.printReviews(inputs[1], threadSafeReviewData);
                 default -> System.out.println("Invalid input. Please try again.");
             }
         }

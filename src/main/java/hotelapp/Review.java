@@ -5,6 +5,10 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The Review class represents a hotel review with various properties, including the hotel ID, review ID, rating,
+ * title, review text, user nickname, and submission date.
+ */
 public final class Review implements Comparable<hotelapp.Review> {
     private final String hotelId;
     private final String reviewId;

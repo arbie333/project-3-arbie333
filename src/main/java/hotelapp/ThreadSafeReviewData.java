@@ -3,12 +3,21 @@ package hotelapp;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * The ThreadSafeReviewData class represents a thread-safe data structure for storing and retrieving review information.
+ */
 public class ThreadSafeReviewData {
     // contains two maps
     private final Map<String, TreeSet<Review>> reviewsByHID = new HashMap<>(); // for findReviews
     private final Map<String, TreeSet<Review>> reviewsByRID = new HashMap<>(); // for findWord
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+
+    /**
+     * Builds the data structure with a list of reviews.
+     *
+     * @param reviews The list of reviews to be added to the data structure.
+     */
     public void build(ArrayList<Review> reviews) {
         try {
             lock.writeLock().lock();
@@ -29,13 +38,18 @@ public class ThreadSafeReviewData {
         }
     }
 
+    /**
+     * Retrieves a set of reviews by hotel ID.
+     *
+     * @param targetId The ID of the hotel for which reviews are to be retrieved.
+     * @return A set of reviews for the specified hotel or null if not found.
+     */
     public Set<Review> getReviewByHID(String targetId) {
         try {
             lock.readLock().lock();
             TreeSet<Review> reviews = reviewsByHID.get(targetId);
 
             if (reviews == null) {
-//                System.out.println("Hotel not found, please try again.");
                 return null;
             }
 
@@ -47,13 +61,18 @@ public class ThreadSafeReviewData {
         }
     }
 
+    /**
+     * Retrieves a set of reviews by review ID.
+     *
+     * @param targetId The ID of the review to be retrieved.
+     * @return A set of reviews for the specified review ID or null if not found.
+     */
     public Set<Review> getReviewByRID(String targetId) {
         try {
             lock.readLock().lock();
             TreeSet<Review> reviews = reviewsByRID.get(targetId);
 
             if (reviews == null) {
-//                System.out.println("Reviews not found, please try again.");
                 return null;
             }
 
